@@ -52,9 +52,10 @@ interface MaintenanceFormProps {
   setIsOpen: (isOpen: boolean) => void;
   onMaintenanceSubmit: (data: FormData) => void;
   entryToEdit?: MaintenanceEntry;
+  onClose?: () => void;
 }
 
-export default function MaintenanceForm({ user, vehicleId, isOpen, setIsOpen, onMaintenanceSubmit, entryToEdit }: MaintenanceFormProps) {
+export default function MaintenanceForm({ user, vehicleId, isOpen, setIsOpen, onMaintenanceSubmit, entryToEdit, onClose }: MaintenanceFormProps) {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const isEditing = !!entryToEdit;
@@ -84,6 +85,14 @@ export default function MaintenanceForm({ user, vehicleId, isOpen, setIsOpen, on
     }
   }, [isOpen, isEditing, entryToEdit, form]);
 
+  const handleOpenChange = (open: boolean) => {
+    if (!open) {
+      // Dialog is closing
+      onClose?.();
+    }
+    setIsOpen(open);
+  }
+
   const onSubmit = async (values: FormData) => {
     setIsSubmitting(true);
     
@@ -97,12 +106,12 @@ export default function MaintenanceForm({ user, vehicleId, isOpen, setIsOpen, on
         description: `L'entrée "${values.label}" a été enregistrée.`,
     });
     
-    setIsOpen(false);
+    handleOpenChange(false);
     setIsSubmitting(false);
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>{isEditing ? "Modifier une entrée" : "Ajouter une entrée de maintenance"}</DialogTitle>

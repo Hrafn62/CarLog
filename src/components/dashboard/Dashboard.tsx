@@ -71,15 +71,18 @@ export default function Dashboard({ user }: { user: FirebaseUser }) {
   const handleVehicleSubmit = (vehicleData: Omit<Vehicle, 'id'> | Vehicle) => {
     if ('id' in vehicleData) {
       // Editing existing vehicle
-      setVehicles(vehicles.map(v => v.id === vehicleData.id ? vehicleData : v));
+      setVehicles(currentVehicles => currentVehicles.map(v => v.id === vehicleData.id ? vehicleData : v));
     } else {
       // Adding new vehicle
       const newVehicle = { ...vehicleData, id: `veh-${Date.now()}` };
-      setVehicles([...vehicles, newVehicle]);
-      // If it's the first vehicle, select it automatically
-      if (vehicles.length === 0) {
-        setSelectedVehicleId(newVehicle.id);
-      }
+      setVehicles(currentVehicles => {
+        const updatedVehicles = [...currentVehicles, newVehicle];
+        // If it's the first vehicle, select it automatically
+        if (currentVehicles.length === 0) {
+          setSelectedVehicleId(newVehicle.id);
+        }
+        return updatedVehicles;
+      });
     }
   }
 
@@ -96,9 +99,13 @@ export default function Dashboard({ user }: { user: FirebaseUser }) {
   const handleMaintenanceSubmit = (entryData: any) => {
      if (editingMaintenanceEntry) {
       // Update
-      const updatedEntries = maintenanceEntries.map(e => e.id === editingMaintenanceEntry.id ? { ...editingMaintenanceEntry, ...entryData, date: Timestamp.fromDate(entryData.date) } : e);
-      setMaintenanceEntries(updatedEntries);
-      setEditingMaintenanceEntry(undefined); // Reset editing state
+      setMaintenanceEntries(currentEntries =>
+        currentEntries.map(e => 
+          e.id === editingMaintenanceEntry.id 
+          ? { ...editingMaintenanceEntry, ...entryData, date: Timestamp.fromDate(entryData.date) } 
+          : e
+        )
+      );
     } else {
       // Add
       const newEntry: MaintenanceEntry = {
@@ -107,12 +114,12 @@ export default function Dashboard({ user }: { user: FirebaseUser }) {
         vehicleId: selectedVehicleId!,
         date: Timestamp.fromDate(entryData.date)
       };
-      setMaintenanceEntries([...maintenanceEntries, newEntry]);
+      setMaintenanceEntries(currentEntries => [...currentEntries, newEntry]);
     }
   };
 
   const handleMaintenanceDelete = (entryId: string) => {
-    setMaintenanceEntries(maintenanceEntries.filter(e => e.id !== entryId));
+    setMaintenanceEntries(currentEntries => currentEntries.filter(e => e.id !== entryId));
   };
 
 
@@ -152,6 +159,7 @@ export default function Dashboard({ user }: { user: FirebaseUser }) {
                   setIsOpen={setIsMaintenanceFormOpen} 
                   onMaintenanceSubmit={handleMaintenanceSubmit}
                   entryToEdit={editingMaintenanceEntry}
+                  onClose={() => setEditingMaintenanceEntry(undefined)}
                 />
               </div>
               {loading ? (
