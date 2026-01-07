@@ -1,8 +1,10 @@
 import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
-  /* config options here */
   output: 'export',
+  // Ajoutez cette ligne pour que les liens pointent vers /CarLog/ au lieu de /
+  basePath: '/CarLog', 
+  
   typescript: {
     ignoreBuildErrors: true,
   },
