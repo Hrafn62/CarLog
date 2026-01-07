@@ -32,33 +32,40 @@ export default function VehicleSelector({ vehicles, onVehicleSelect, onAddVehicl
       return
     }
 
+    const onSelect = () => {
+      const selectedIndex = api.selectedScrollSnap();
+      setCurrent(selectedIndex);
+      if (vehicles[selectedIndex]) {
+        onVehicleSelect(vehicles[selectedIndex].id);
+      }
+    };
+    
+    api.on("select", onSelect);
+    
+    // Set initial state
     const initialSlide = vehicles.findIndex(v => v.id === selectedVehicleId);
     if (initialSlide !== -1) {
-        api.scrollTo(initialSlide);
+        api.scrollTo(initialSlide, true); // Use true for instant scroll
         setCurrent(initialSlide);
     } else if (vehicles.length > 0) {
         onVehicleSelect(vehicles[0].id);
-        setCurrent(0);
     } else {
         onVehicleSelect(null);
     }
 
-
-    const handleSelect = () => {
-      const selectedIndex = api.selectedScrollSnap();
-      setCurrent(selectedIndex)
-      if (vehicles[selectedIndex]) {
-        onVehicleSelect(vehicles[selectedIndex].id);
-      }
-    }
-
-    api.on("select", handleSelect)
-
     return () => {
-      api.off("select", handleSelect)
-    }
-  }, [api, vehicles, onVehicleSelect, selectedVehicleId])
+      api.off("select", onSelect);
+    };
+
+  }, [api, vehicles, onVehicleSelect, selectedVehicleId]);
   
+  const handleCardClick = (vehicleId: string, index: number) => {
+    if (api) {
+      api.scrollTo(index);
+    }
+    onVehicleSelect(vehicleId);
+  }
+
   if (vehicles.length === 0) {
     return null;
   }
@@ -67,13 +74,14 @@ export default function VehicleSelector({ vehicles, onVehicleSelect, onAddVehicl
     <div className="mb-8">
         <Carousel setApi={setApi} className="w-full">
         <CarouselContent>
-            {vehicles.map((vehicle) => (
+            {vehicles.map((vehicle, index) => (
             <CarouselItem key={vehicle.id} className="md:basis-1/2 lg:basis-1/3">
                 <div className="p-1">
                 <Card 
+                    onClick={() => handleCardClick(vehicle.id, index)}
                     className={cn(
-                        "transition-all", 
-                        selectedVehicleId === vehicle.id ? "border-primary shadow-lg" : "border-border"
+                        "transition-all cursor-pointer", 
+                        selectedVehicleId === vehicle.id ? "border-primary shadow-lg" : "border-border hover:border-muted-foreground/50"
                     )}
                 >
                     <CardContent className="flex flex-col items-center justify-center p-6 gap-2">
