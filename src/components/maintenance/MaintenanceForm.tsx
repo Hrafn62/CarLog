@@ -46,8 +46,6 @@ const formSchema = z.object({
 type FormData = z.infer<typeof formSchema>;
 
 interface MaintenanceFormProps {
-  user: FirebaseUser;
-  vehicleId: string;
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
   onMaintenanceSubmit: (data: FormData) => void;
@@ -55,7 +53,7 @@ interface MaintenanceFormProps {
   onClose?: () => void;
 }
 
-export default function MaintenanceForm({ user, vehicleId, isOpen, setIsOpen, onMaintenanceSubmit, entryToEdit, onClose }: MaintenanceFormProps) {
+export default function MaintenanceForm({ isOpen, setIsOpen, onMaintenanceSubmit, entryToEdit, onClose }: MaintenanceFormProps) {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const isEditing = !!entryToEdit;
@@ -87,7 +85,6 @@ export default function MaintenanceForm({ user, vehicleId, isOpen, setIsOpen, on
 
   const handleOpenChange = (open: boolean) => {
     if (!open) {
-      // Dialog is closing
       onClose?.();
     }
     setIsOpen(open);
@@ -106,7 +103,6 @@ export default function MaintenanceForm({ user, vehicleId, isOpen, setIsOpen, on
         description: `L'entrée "${values.label}" a été enregistrée.`,
     });
     
-    handleOpenChange(false);
     setIsSubmitting(false);
   };
 

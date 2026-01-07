@@ -116,6 +116,9 @@ export default function Dashboard({ user }: { user: FirebaseUser }) {
       };
       setMaintenanceEntries(currentEntries => [...currentEntries, newEntry]);
     }
+    // Close form and reset editing state
+    setIsMaintenanceFormOpen(false);
+    setEditingMaintenanceEntry(undefined);
   };
 
   const handleMaintenanceDelete = (entryId: string) => {
@@ -153,8 +156,6 @@ export default function Dashboard({ user }: { user: FirebaseUser }) {
                   <PlusCircle className="mr-2 h-4 w-4" /> Ajouter une entrée
                 </Button>
                 <MaintenanceForm 
-                  user={user} 
-                  vehicleId={selectedVehicle.id}
                   isOpen={isMaintenanceFormOpen} 
                   setIsOpen={setIsMaintenanceFormOpen} 
                   onMaintenanceSubmit={handleMaintenanceSubmit}
