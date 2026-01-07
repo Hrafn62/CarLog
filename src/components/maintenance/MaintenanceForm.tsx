@@ -61,14 +61,6 @@ export default function MaintenanceForm({ user, vehicleId, isOpen, setIsOpen, on
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      label: "",
-      garage: "",
-      date: undefined,
-      mileage: undefined,
-      price: undefined,
-      invoice: undefined
-    },
   });
 
   useEffect(() => {
@@ -76,8 +68,8 @@ export default function MaintenanceForm({ user, vehicleId, isOpen, setIsOpen, on
       if (isEditing && entryToEdit) {
          form.reset({
           ...entryToEdit,
-          date: entryToEdit.date.toDate(), // Convert Timestamp to Date
-          invoice: undefined, // Can't edit file input
+          date: entryToEdit.date.toDate(),
+          invoice: undefined,
         });
       } else {
         form.reset({
@@ -104,7 +96,7 @@ export default function MaintenanceForm({ user, vehicleId, isOpen, setIsOpen, on
         title: isEditing ? "Entrée mise à jour !" : "Entrée ajoutée !",
         description: `L'entrée "${values.label}" a été enregistrée.`,
     });
-    form.reset();
+    
     setIsOpen(false);
     setIsSubmitting(false);
   };
