@@ -212,35 +212,39 @@ export default function AddVehicleForm({ isOpen, setIsOpen, onVehicleSubmit, onV
               />
             </div>
             
-            <DialogFooter className="pt-4 sm:justify-between">
-              {isEditing && (
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button type="button" variant="destructive">
-                      <Trash2 className="mr-2 h-4 w-4" />
-                      Supprimer le véhicule
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Êtes-vous sûr de vouloir supprimer ce véhicule ?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        Cette action est irréversible. Toutes les données associées à ce véhicule, y compris le carnet d'entretien, seront définitivement supprimées.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Annuler</AlertDialogCancel>
-                      <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">
-                        Supprimer
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              )}
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {isEditing ? "Enregistrer les modifications" : "Ajouter le véhicule"}
-              </Button>
+            <DialogFooter className="pt-4 flex sm:justify-between w-full">
+               <div className="flex-1 min-w-0">
+                  {isEditing && (
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button type="button" variant="destructive">
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          Supprimer
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Êtes-vous sûr de vouloir supprimer ce véhicule ?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Cette action est irréversible. Toutes les données associées à ce véhicule, y compris le carnet d'entretien, seront définitivement supprimées.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Annuler</AlertDialogCancel>
+                          <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">
+                            Supprimer
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  )}
+               </div>
+               <div className="flex justify-end">
+                  <Button type="submit" disabled={isSubmitting}>
+                    {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    {isEditing ? "Enregistrer" : "Ajouter le véhicule"}
+                  </Button>
+              </div>
             </DialogFooter>
           </form>
         </Form>
