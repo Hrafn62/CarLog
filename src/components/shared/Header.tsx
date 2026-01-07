@@ -17,7 +17,7 @@ import { CarFront, LogOut } from "lucide-react";
 
 export default function Header({ user }: { user: FirebaseUser }) {
   const handleSignOut = async () => {
-    await signOut(auth);
+   await signOut(auth!);
   };
 
   return (
