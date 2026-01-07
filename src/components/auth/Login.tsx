@@ -36,8 +36,7 @@ export default function Login() {
 
   const handleGoogleSignIn = async () => {
     try {
-      await signInWithPopup(auth, googleProvider);
-    } catch (error) {
+      await signInWithPopup(auth as any, googleProvider);    } catch (error) {
       console.error("Error signing in with Google: ", error);
       toast({
         variant: "destructive",
