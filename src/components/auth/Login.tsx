@@ -41,8 +41,8 @@ export default function Login() {
       console.error("Error signing in with Google: ", error);
       toast({
         variant: "destructive",
-        title: "Authentication Failed",
-        description: "Could not sign you in with Google. Please try again.",
+        title: "Échec de l'authentification",
+        description: "Connexion avec Google impossible. Veuillez réessayer.",
       });
     }
   };
@@ -51,15 +51,15 @@ export default function Login() {
     <div className="flex min-h-screen flex-col items-center justify-center bg-background p-4 text-center">
       <CarFront className="h-16 w-16 text-primary" />
       <h1 className="mt-4 text-4xl font-bold font-headline tracking-tight text-foreground">
-        Welcome to CarLog
+        Bienvenue sur CarLog
       </h1>
       <p className="mt-2 text-lg text-muted-foreground">
-        Your simple car maintenance tracker.
+        Votre carnet d'entretien automobile simplifié.
       </p>
       <div className="mt-8">
         <Button size="lg" onClick={handleGoogleSignIn}>
           <GoogleIcon />
-          <span>Sign in with Google</span>
+          <span>Se connecter avec Google</span>
         </Button>
       </div>
     </div>

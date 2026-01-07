@@ -32,7 +32,7 @@ export default function Header({ user }: { user: FirebaseUser }) {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                 <Avatar className="h-8 w-8">
-                  <AvatarImage src={user.photoURL ?? ''} alt={user.displayName ?? 'User'} />
+                  <AvatarImage src={user.photoURL ?? ''} alt={user.displayName ?? 'Utilisateur'} />
                   <AvatarFallback>{user.displayName?.charAt(0).toUpperCase() ?? 'U'}</AvatarFallback>
                 </Avatar>
               </Button>
@@ -49,7 +49,7 @@ export default function Header({ user }: { user: FirebaseUser }) {
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleSignOut}>
                 <LogOut className="mr-2 h-4 w-4" />
-                <span>Log out</span>
+                <span>Se déconnecter</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

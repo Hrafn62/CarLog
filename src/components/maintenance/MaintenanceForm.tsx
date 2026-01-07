@@ -33,15 +33,16 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { CalendarIcon, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
+import { fr } from "date-fns/locale";
 
 const formSchema = z.object({
   date: z.date({
-    required_error: "A date for the intervention is required.",
+    required_error: "Une date pour l'intervention est requise.",
   }),
-  label: z.string().min(2, "Label must be at least 2 characters."),
-  mileage: z.coerce.number().min(0, "Mileage must be a positive number."),
-  price: z.coerce.number().min(0, "Price must be a positive number."),
-  garage: z.string().min(2, "Garage name must be at least 2 characters."),
+  label: z.string().min(2, "Le libellé doit comporter au moins 2 caractères."),
+  mileage: z.coerce.number().min(0, "Le kilométrage doit être un nombre positif."),
+  price: z.coerce.number().min(0, "Le prix doit être un nombre positif."),
+  garage: z.string().min(2, "Le nom du garage doit comporter au moins 2 caractères."),
   invoice: z.instanceof(File).optional(),
 });
 
@@ -92,8 +93,8 @@ export default function MaintenanceForm({ user, isOpen, setIsOpen }: Maintenance
       await addDoc(collection(db, `users/${user.uid}/maintenance`), docData);
       
       toast({
-        title: "Success!",
-        description: "Maintenance entry added successfully.",
+        title: "Succès !",
+        description: "Entrée de maintenance ajoutée avec succès.",
       });
       form.reset();
       setIsOpen(false);
@@ -101,8 +102,8 @@ export default function MaintenanceForm({ user, isOpen, setIsOpen }: Maintenance
       console.error("Error adding document: ", error);
       toast({
         variant: "destructive",
-        title: "Error",
-        description: "Could not save the entry. Please try again.",
+        title: "Erreur",
+        description: "Impossible d'enregistrer l'entrée. Veuillez réessayer.",
       });
     } finally {
       setIsSubmitting(false);
@@ -111,8 +112,8 @@ export default function MaintenanceForm({ user, isOpen, setIsOpen }: Maintenance
     
     // Show success toast and close form
     toast({
-        title: "Simulation Success!",
-        description: "Maintenance entry 'added' successfully (simulation).",
+        title: "Simulation réussie !",
+        description: "Entrée de maintenance 'ajoutée' avec succès (simulation).",
     });
     form.reset();
     setIsOpen(false);
@@ -123,9 +124,9 @@ export default function MaintenanceForm({ user, isOpen, setIsOpen }: Maintenance
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Add Maintenance Entry</DialogTitle>
+          <DialogTitle>Ajouter une entrée de maintenance</DialogTitle>
           <DialogDescription>
-            Fill in the details of the maintenance work.
+            Remplissez les détails de l'intervention de maintenance.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -147,9 +148,9 @@ export default function MaintenanceForm({ user, isOpen, setIsOpen }: Maintenance
                           )}
                         >
                           {field.value ? (
-                            format(field.value, "PPP")
+                            format(field.value, "PPP", { locale: fr })
                           ) : (
-                            <span>Pick a date</span>
+                            <span>Choisissez une date</span>
                           )}
                           <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                         </Button>
@@ -164,6 +165,7 @@ export default function MaintenanceForm({ user, isOpen, setIsOpen }: Maintenance
                           date > new Date() || date < new Date("1900-01-01")
                         }
                         initialFocus
+                        locale={fr}
                       />
                     </PopoverContent>
                   </Popover>
@@ -176,9 +178,9 @@ export default function MaintenanceForm({ user, isOpen, setIsOpen }: Maintenance
               name="label"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Label</FormLabel>
+                  <FormLabel>Libellé</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g., Oil Change" {...field} />
+                    <Input placeholder="ex: Vidange moteur" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -190,7 +192,7 @@ export default function MaintenanceForm({ user, isOpen, setIsOpen }: Maintenance
                 name="mileage"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Mileage (km)</FormLabel>
+                    <FormLabel>Kilométrage (km)</FormLabel>
                     <FormControl>
                       <Input type="number" placeholder="123456" {...field} />
                     </FormControl>
@@ -203,7 +205,7 @@ export default function MaintenanceForm({ user, isOpen, setIsOpen }: Maintenance
                 name="price"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Price ($)</FormLabel>
+                    <FormLabel>Prix (€)</FormLabel>
                     <FormControl>
                       <Input type="number" step="0.01" placeholder="150.00" {...field} />
                     </FormControl>
@@ -219,7 +221,7 @@ export default function MaintenanceForm({ user, isOpen, setIsOpen }: Maintenance
                 <FormItem>
                   <FormLabel>Garage</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g., Local Auto Shop" {...field} />
+                    <Input placeholder="ex: Garage Local" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -230,7 +232,7 @@ export default function MaintenanceForm({ user, isOpen, setIsOpen }: Maintenance
               name="invoice"
               render={({ field: { onChange, value, ...rest } }) => (
                 <FormItem>
-                  <FormLabel>Invoice (Image)</FormLabel>
+                  <FormLabel>Facture (Image)</FormLabel>
                   <FormControl>
                     <Input 
                       type="file" 
@@ -248,7 +250,7 @@ export default function MaintenanceForm({ user, isOpen, setIsOpen }: Maintenance
             <DialogFooter>
               <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Save Entry
+                Enregistrer
               </Button>
             </DialogFooter>
           </form>

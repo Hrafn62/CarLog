@@ -5,8 +5,8 @@ import ServiceWorkerRegistrar from '@/components/pwa/ServiceWorkerRegistrar';
 import { AuthProvider } from '@/lib/hooks';
 
 export const metadata: Metadata = {
-  title: 'CarLog PWA',
-  description: 'Minimalist PWA to manage vehicle maintenance.',
+  title: 'CarLog - Entretien véhicule',
+  description: 'Une application simple pour gérer l\'entretien de votre véhicule.',
   manifest: '/manifest.json',
 };
 
@@ -16,7 +16,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="fr">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />

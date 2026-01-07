@@ -10,8 +10,8 @@ interface AuthContextType {
 
 const mockUser: FirebaseUser = {
   uid: 'mock-user-id',
-  displayName: 'John Doe',
-  email: 'john.doe@example.com',
+  displayName: 'Jean Dupont',
+  email: 'jean.dupont@example.com',
   photoURL: 'https://picsum.photos/seed/1/100/100',
   providerId: 'mock',
   emailVerified: true,

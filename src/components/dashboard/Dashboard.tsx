@@ -57,9 +57,9 @@ export default function Dashboard({ user }: { user: FirebaseUser }) {
         
         <div className="mt-8">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-bold font-headline">Maintenance Log</h2>
+            <h2 className="text-2xl font-bold font-headline">Carnet d'entretien</h2>
             <Button onClick={() => setIsFormOpen(true)}>
-              <PlusCircle className="mr-2 h-4 w-4" /> Add Entry
+              <PlusCircle className="mr-2 h-4 w-4" /> Ajouter une entrée
             </Button>
             <MaintenanceForm user={user} isOpen={isFormOpen} setIsOpen={setIsFormOpen} />
           </div>

@@ -20,24 +20,24 @@ interface MaintenanceLogProps {
 export default function MaintenanceLog({ entries }: MaintenanceLogProps) {
     
   const formatDate = (timestamp: any) => {
-      if (!timestamp?.toDate) return 'Invalid Date';
-      return timestamp.toDate().toLocaleDateString();
+      if (!timestamp?.toDate) return 'Date invalide';
+      return timestamp.toDate().toLocaleDateString('fr-FR');
   }
 
   const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value);
+    return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(value);
   }
 
   const formatMileage = (value: number) => {
-    return new Intl.NumberFormat('en-US').format(value) + ' km';
+    return new Intl.NumberFormat('fr-FR').format(value) + ' km';
   }
 
   if (entries.length === 0) {
     return (
       <Card>
         <CardContent className="p-8 text-center text-muted-foreground">
-          <p>No maintenance entries yet.</p>
-          <p className="text-sm">Click "Add Entry" to get started.</p>
+          <p>Aucune entrée de maintenance pour le moment.</p>
+          <p className="text-sm">Cliquez sur "Ajouter une entrée" pour commencer.</p>
         </CardContent>
       </Card>
     );
@@ -49,11 +49,11 @@ export default function MaintenanceLog({ entries }: MaintenanceLogProps) {
         <TableHeader>
           <TableRow>
             <TableHead>Date</TableHead>
-            <TableHead>Label</TableHead>
-            <TableHead className="text-right">Mileage</TableHead>
-            <TableHead className="text-right">Price</TableHead>
+            <TableHead>Libellé</TableHead>
+            <TableHead className="text-right">Kilométrage</TableHead>
+            <TableHead className="text-right">Prix</TableHead>
             <TableHead>Garage</TableHead>
-            <TableHead className="text-center">Invoice</TableHead>
+            <TableHead className="text-center">Facture</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -67,7 +67,7 @@ export default function MaintenanceLog({ entries }: MaintenanceLogProps) {
               <TableCell className="text-center">
                 {entry.invoiceUrl ? (
                   <Button variant="ghost" size="icon" asChild>
-                    <a href={entry.invoiceUrl} target="_blank" rel="noopener noreferrer" aria-label="View invoice">
+                    <a href={entry.invoiceUrl} target="_blank" rel="noopener noreferrer" aria-label="Voir la facture">
                       <FileText className="h-4 w-4" />
                     </a>
                   </Button>
