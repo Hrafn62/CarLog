@@ -86,6 +86,26 @@ export default function Dashboard({ user }: { user: FirebaseUser }) {
     }
   }
 
+  const handleVehicleDelete = (vehicleId: string) => {
+    setVehicles(currentVehicles => {
+        const newVehicles = currentVehicles.filter(v => v.id !== vehicleId);
+        
+        // Also delete associated maintenance entries
+        setMaintenanceEntries(currentEntries => currentEntries.filter(e => e.vehicleId !== vehicleId));
+
+        // If the deleted vehicle was the selected one, select another one
+        if (selectedVehicleId === vehicleId) {
+            if (newVehicles.length > 0) {
+                setSelectedVehicleId(newVehicles[0].id);
+            } else {
+                setSelectedVehicleId(null);
+            }
+        }
+        return newVehicles;
+    });
+    setIsVehicleFormOpen(false); // Close the form after deletion
+  };
+
   const handleOpenAddMaintenanceForm = () => {
     setEditingMaintenanceEntry(undefined);
     setIsMaintenanceFormOpen(true);
@@ -99,13 +119,12 @@ export default function Dashboard({ user }: { user: FirebaseUser }) {
   const handleMaintenanceSubmit = (entryData: any) => {
      if (editingMaintenanceEntry) {
       // Update
-      setMaintenanceEntries(currentEntries =>
-        currentEntries.map(e => 
+      const updatedEntries = maintenanceEntries.map(e => 
           e.id === editingMaintenanceEntry.id 
           ? { ...editingMaintenanceEntry, ...entryData, date: Timestamp.fromDate(entryData.date) } 
           : e
-        )
-      );
+        );
+      setMaintenanceEntries(updatedEntries);
     } else {
       // Add
       const newEntry: MaintenanceEntry = {
@@ -142,6 +161,7 @@ export default function Dashboard({ user }: { user: FirebaseUser }) {
           isOpen={isVehicleFormOpen}
           setIsOpen={setIsVehicleFormOpen}
           onVehicleSubmit={handleVehicleSubmit}
+          onVehicleDelete={handleVehicleDelete}
           vehicleToEdit={editingVehicle}
         />
 

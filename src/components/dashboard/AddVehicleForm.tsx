@@ -25,7 +25,18 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Loader2 } from "lucide-react";
+import { Loader2, Trash2 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 const formSchema = z.object({
   name: z.string().min(2, "Le nom doit comporter au moins 2 caractères."),
@@ -42,10 +53,11 @@ interface AddVehicleFormProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
   onVehicleSubmit: (vehicle: Omit<Vehicle, 'id'> | Vehicle) => void;
+  onVehicleDelete?: (vehicleId: string) => void;
   vehicleToEdit?: Vehicle;
 }
 
-export default function AddVehicleForm({ isOpen, setIsOpen, onVehicleSubmit, vehicleToEdit }: AddVehicleFormProps) {
+export default function AddVehicleForm({ isOpen, setIsOpen, onVehicleSubmit, onVehicleDelete, vehicleToEdit }: AddVehicleFormProps) {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const isEditing = !!vehicleToEdit;
@@ -63,7 +75,7 @@ export default function AddVehicleForm({ isOpen, setIsOpen, onVehicleSubmit, veh
   });
 
   useEffect(() => {
-    if (isEditing) {
+    if (isEditing && vehicleToEdit) {
       form.reset(vehicleToEdit);
     } else {
       form.reset({
@@ -93,6 +105,17 @@ export default function AddVehicleForm({ isOpen, setIsOpen, onVehicleSubmit, veh
     form.reset();
     setIsOpen(false);
     setIsSubmitting(false);
+  };
+
+  const handleDelete = () => {
+    if (vehicleToEdit && onVehicleDelete) {
+      onVehicleDelete(vehicleToEdit.id);
+      toast({
+        variant: "destructive",
+        title: "Véhicule supprimé",
+        description: `${vehicleToEdit.name} a été retiré de votre garage.`,
+      });
+    }
   };
 
   return (
@@ -189,7 +212,31 @@ export default function AddVehicleForm({ isOpen, setIsOpen, onVehicleSubmit, veh
               />
             </div>
             
-            <DialogFooter className="pt-4">
+            <DialogFooter className="pt-4 sm:justify-between">
+              {isEditing && (
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button type="button" variant="destructive">
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      Supprimer le véhicule
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Êtes-vous sûr de vouloir supprimer ce véhicule ?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Cette action est irréversible. Toutes les données associées à ce véhicule, y compris le carnet d'entretien, seront définitivement supprimées.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Annuler</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">
+                        Supprimer
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              )}
               <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 {isEditing ? "Enregistrer les modifications" : "Ajouter le véhicule"}
