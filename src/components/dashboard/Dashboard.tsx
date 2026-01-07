@@ -96,8 +96,9 @@ export default function Dashboard({ user }: { user: FirebaseUser }) {
   const handleMaintenanceSubmit = (entryData: any) => {
      if (editingMaintenanceEntry) {
       // Update
-      const updatedEntries = maintenanceEntries.map(e => e.id === editingMaintenanceEntry.id ? { ...e, ...entryData, date: Timestamp.fromDate(entryData.date) } : e);
+      const updatedEntries = maintenanceEntries.map(e => e.id === editingMaintenanceEntry.id ? { ...editingMaintenanceEntry, ...entryData, date: Timestamp.fromDate(entryData.date) } : e);
       setMaintenanceEntries(updatedEntries);
+      setEditingMaintenanceEntry(undefined); // Reset editing state
     } else {
       // Add
       const newEntry: MaintenanceEntry = {
