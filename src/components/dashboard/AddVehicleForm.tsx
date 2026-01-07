@@ -53,6 +53,8 @@ export default function AddVehicleForm({ isOpen, setIsOpen, onAddVehicle }: AddV
       name: "",
       brand: "",
       model: "",
+      year: undefined,
+      mileage: undefined,
     },
   });
 
@@ -134,7 +136,7 @@ export default function AddVehicleForm({ isOpen, setIsOpen, onAddVehicle }: AddV
                   <FormItem>
                     <FormLabel>Année</FormLabel>
                     <FormControl>
-                      <Input type="number" placeholder="2023" {...field} />
+                      <Input type="number" placeholder="2023" {...field} value={field.value ?? ''} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -147,7 +149,7 @@ export default function AddVehicleForm({ isOpen, setIsOpen, onAddVehicle }: AddV
                   <FormItem>
                     <FormLabel>Kilométrage (km)</FormLabel>
                     <FormControl>
-                      <Input type="number" placeholder="12345" {...field} />
+                      <Input type="number" placeholder="12345" {...field} value={field.value ?? ''} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
