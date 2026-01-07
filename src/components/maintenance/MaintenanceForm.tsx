@@ -4,9 +4,9 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { addDoc, collection, Timestamp } from "firebase/firestore";
-import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
-import { db, storage } from "@/lib/firebase";
+// import { addDoc, collection, Timestamp } from "firebase/firestore";
+// import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+// import { db, storage } from "@/lib/firebase";
 import { useToast } from "@/hooks/use-toast";
 import type { FirebaseUser } from "@/lib/types";
 
@@ -65,6 +65,13 @@ export default function MaintenanceForm({ user, isOpen, setIsOpen }: Maintenance
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsSubmitting(true);
+    console.log("Simulating form submission with values:", values);
+    
+    // Simulate API call delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    // Firebase logic is commented out
+    /*
     try {
       let invoiceUrl: string | undefined = undefined;
       if (values.invoice) {
@@ -100,6 +107,16 @@ export default function MaintenanceForm({ user, isOpen, setIsOpen }: Maintenance
     } finally {
       setIsSubmitting(false);
     }
+    */
+    
+    // Show success toast and close form
+    toast({
+        title: "Simulation Success!",
+        description: "Maintenance entry 'added' successfully (simulation).",
+    });
+    form.reset();
+    setIsOpen(false);
+    setIsSubmitting(false);
   };
 
   return (

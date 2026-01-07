@@ -6,36 +6,42 @@ import Header from '@/components/shared/Header';
 import Summary from './Summary';
 import MaintenanceLog from '../maintenance/MaintenanceLog';
 import MaintenanceForm from '../maintenance/MaintenanceForm';
-import { db } from '@/lib/firebase';
-import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
 import { Skeleton } from '../ui/skeleton';
 import { Button } from '../ui/button';
 import { PlusCircle } from 'lucide-react';
+import { Timestamp } from 'firebase/firestore';
+
+const mockEntries: MaintenanceEntry[] = [
+    { id: '1', date: Timestamp.fromDate(new Date('2023-10-28')), label: 'Vidange moteur', mileage: 150200, price: 120, garage: 'Garage du Centre' },
+    { id: '2', date: Timestamp.fromDate(new Date('2023-08-15')), label: 'Changement pneus avant', mileage: 145500, price: 350, garage: 'AutoPneu', invoiceUrl: '#' },
+    { id: '3', date: Timestamp.fromDate(new Date('2023-05-02')), label: 'Révision annuelle', mileage: 140100, price: 250, garage: 'Garage du Centre' },
+];
 
 export default function Dashboard({ user }: { user: FirebaseUser }) {
-  const [maintenanceEntries, setMaintenanceEntries] = useState<MaintenanceEntry[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [maintenanceEntries, setMaintenanceEntries] = useState<MaintenanceEntry[]>(mockEntries);
+  const [loading, setLoading] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
 
-  useEffect(() => {
-    if (!user) return;
-
-    const q = query(collection(db, `users/${user.uid}/maintenance`), orderBy('date', 'desc'));
-
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      const entries: MaintenanceEntry[] = [];
-      querySnapshot.forEach((doc) => {
-        entries.push({ id: doc.id, ...doc.data() } as MaintenanceEntry);
-      });
-      setMaintenanceEntries(entries);
-      setLoading(false);
-    }, (error) => {
-      console.error("Error fetching maintenance entries:", error);
-      setLoading(false);
-    });
-
-    return () => unsubscribe();
-  }, [user]);
+  // Firebase listener is commented out to use mock data
+  // useEffect(() => {
+  //   if (!user) return;
+  //
+  //   const q = query(collection(db, `users/${user.uid}/maintenance`), orderBy('date', 'desc'));
+  //
+  //   const unsubscribe = onSnapshot(q, (querySnapshot) => {
+  //     const entries: MaintenanceEntry[] = [];
+  //     querySnapshot.forEach((doc) => {
+  //       entries.push({ id: doc.id, ...doc.data() } as MaintenanceEntry);
+  //     });
+  //     setMaintenanceEntries(entries);
+  //     setLoading(false);
+  //   }, (error) => {
+  //     console.error("Error fetching maintenance entries:", error);
+  //     setLoading(false);
+  //   });
+  //
+  //   return () => unsubscribe();
+  // }, [user]);
 
   const { totalCost, lastMileage } = useMemo(() => {
     const totalCost = maintenanceEntries.reduce((acc, entry) => acc + entry.price, 0);
