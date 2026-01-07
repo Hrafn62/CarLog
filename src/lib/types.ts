@@ -1,10 +1,20 @@
-import type { User, UserInfo } from 'firebase/auth';
+import type { User } from 'firebase/auth';
 import type { Timestamp } from 'firebase/firestore';
 
 export type FirebaseUser = User;
 
+export interface Vehicle {
+  id: string;
+  name: string;
+  brand: string;
+  model: string;
+  year: number;
+  mileage: number;
+}
+
 export interface MaintenanceEntry {
   id: string;
+  vehicleId: string; // Keep track of which vehicle this belongs to
   date: Timestamp;
   label: string;
   mileage: number;

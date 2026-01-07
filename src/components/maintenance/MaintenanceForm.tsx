@@ -48,11 +48,12 @@ const formSchema = z.object({
 
 interface MaintenanceFormProps {
   user: FirebaseUser;
+  vehicleId: string;
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
 }
 
-export default function MaintenanceForm({ user, isOpen, setIsOpen }: MaintenanceFormProps) {
+export default function MaintenanceForm({ user, vehicleId, isOpen, setIsOpen }: MaintenanceFormProps) {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -66,7 +67,7 @@ export default function MaintenanceForm({ user, isOpen, setIsOpen }: Maintenance
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsSubmitting(true);
-    console.log("Simulating form submission with values:", values);
+    console.log("Simulating form submission with values:", { ...values, vehicleId });
     
     // Simulate API call delay
     await new Promise(resolve => setTimeout(resolve, 1000));
@@ -76,7 +77,7 @@ export default function MaintenanceForm({ user, isOpen, setIsOpen }: Maintenance
     try {
       let invoiceUrl: string | undefined = undefined;
       if (values.invoice) {
-        const invoiceRef = ref(storage, `users/${user.uid}/invoices/${Date.now()}_${values.invoice.name}`);
+        const invoiceRef = ref(storage, `users/${user.uid}/vehicles/${vehicleId}/invoices/${Date.now()}_${values.invoice.name}`);
         const snapshot = await uploadBytes(invoiceRef, values.invoice);
         invoiceUrl = await getDownloadURL(snapshot.ref);
       }
@@ -90,7 +91,7 @@ export default function MaintenanceForm({ user, isOpen, setIsOpen }: Maintenance
         ...(invoiceUrl && { invoiceUrl }),
       };
 
-      await addDoc(collection(db, `users/${user.uid}/maintenance`), docData);
+      await addDoc(collection(db, `users/${user.uid}/vehicles/${vehicleId}/maintenance`), docData);
       
       toast({
         title: "Succès !",
