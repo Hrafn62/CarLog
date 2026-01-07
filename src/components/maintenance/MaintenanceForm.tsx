@@ -1,14 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-// import { addDoc, collection, Timestamp } from "firebase/firestore";
-// import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
-// import { db, storage } from "@/lib/firebase";
 import { useToast } from "@/hooks/use-toast";
-import type { FirebaseUser } from "@/lib/types";
+import type { FirebaseUser, MaintenanceEntry } from "@/lib/types";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -46,75 +43,66 @@ const formSchema = z.object({
   invoice: z.instanceof(File).optional(),
 });
 
+type FormData = z.infer<typeof formSchema>;
+
 interface MaintenanceFormProps {
   user: FirebaseUser;
   vehicleId: string;
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
+  onMaintenanceSubmit: (data: FormData) => void;
+  entryToEdit?: MaintenanceEntry;
 }
 
-export default function MaintenanceForm({ user, vehicleId, isOpen, setIsOpen }: MaintenanceFormProps) {
+export default function MaintenanceForm({ user, vehicleId, isOpen, setIsOpen, onMaintenanceSubmit, entryToEdit }: MaintenanceFormProps) {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const isEditing = !!entryToEdit;
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       label: "",
       garage: "",
+      date: undefined,
+      mileage: undefined,
+      price: undefined,
+      invoice: undefined
     },
   });
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+  useEffect(() => {
+    if (isOpen) {
+      if (isEditing && entryToEdit) {
+         form.reset({
+          ...entryToEdit,
+          date: entryToEdit.date.toDate(), // Convert Timestamp to Date
+          invoice: undefined, // Can't edit file input
+        });
+      } else {
+        form.reset({
+          label: "",
+          garage: "",
+          date: new Date(),
+          mileage: undefined,
+          price: undefined,
+          invoice: undefined,
+        });
+      }
+    }
+  }, [isOpen, isEditing, entryToEdit, form]);
+
+  const onSubmit = async (values: FormData) => {
     setIsSubmitting(true);
-    console.log("Simulating form submission with values:", { ...values, vehicleId });
     
     // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    // Firebase logic is commented out
-    /*
-    try {
-      let invoiceUrl: string | undefined = undefined;
-      if (values.invoice) {
-        const invoiceRef = ref(storage, `users/${user.uid}/vehicles/${vehicleId}/invoices/${Date.now()}_${values.invoice.name}`);
-        const snapshot = await uploadBytes(invoiceRef, values.invoice);
-        invoiceUrl = await getDownloadURL(snapshot.ref);
-      }
-
-      const docData = {
-        date: Timestamp.fromDate(values.date),
-        label: values.label,
-        mileage: values.mileage,
-        price: values.price,
-        garage: values.garage,
-        ...(invoiceUrl && { invoiceUrl }),
-      };
-
-      await addDoc(collection(db, `users/${user.uid}/vehicles/${vehicleId}/maintenance`), docData);
-      
-      toast({
-        title: "Succès !",
-        description: "Entrée de maintenance ajoutée avec succès.",
-      });
-      form.reset();
-      setIsOpen(false);
-    } catch (error) {
-      console.error("Error adding document: ", error);
-      toast({
-        variant: "destructive",
-        title: "Erreur",
-        description: "Impossible d'enregistrer l'entrée. Veuillez réessayer.",
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
-    */
+    await new Promise(resolve => setTimeout(resolve, 500));
     
-    // Show success toast and close form
+    onMaintenanceSubmit(values);
+
     toast({
-        title: "Simulation réussie !",
-        description: "Entrée de maintenance 'ajoutée' avec succès (simulation).",
+        title: isEditing ? "Entrée mise à jour !" : "Entrée ajoutée !",
+        description: `L'entrée "${values.label}" a été enregistrée.`,
     });
     form.reset();
     setIsOpen(false);
@@ -125,7 +113,7 @@ export default function MaintenanceForm({ user, vehicleId, isOpen, setIsOpen }: 
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Ajouter une entrée de maintenance</DialogTitle>
+          <DialogTitle>{isEditing ? "Modifier une entrée" : "Ajouter une entrée de maintenance"}</DialogTitle>
           <DialogDescription>
             Remplissez les détails de l'intervention de maintenance.
           </DialogDescription>
@@ -195,7 +183,7 @@ export default function MaintenanceForm({ user, vehicleId, isOpen, setIsOpen }: 
                   <FormItem>
                     <FormLabel>Kilométrage (km)</FormLabel>
                     <FormControl>
-                      <Input type="number" placeholder="123456" {...field} />
+                      <Input type="number" placeholder="123456" {...field} value={field.value ?? ''} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -208,7 +196,7 @@ export default function MaintenanceForm({ user, vehicleId, isOpen, setIsOpen }: 
                   <FormItem>
                     <FormLabel>Prix (€)</FormLabel>
                     <FormControl>
-                      <Input type="number" step="0.01" placeholder="150.00" {...field} />
+                      <Input type="number" step="0.01" placeholder="150.00" {...field} value={field.value ?? ''} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -251,7 +239,7 @@ export default function MaintenanceForm({ user, vehicleId, isOpen, setIsOpen }: 
             <DialogFooter>
               <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Enregistrer
+                {isEditing ? 'Enregistrer les modifications' : 'Enregistrer'}
               </Button>
             </DialogFooter>
           </form>

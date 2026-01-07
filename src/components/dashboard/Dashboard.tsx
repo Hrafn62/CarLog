@@ -14,8 +14,8 @@ import VehicleSelector from './VehicleSelector';
 import AddVehicleForm from './AddVehicleForm';
 
 const mockVehicles: Vehicle[] = [
-  { id: 'veh-1', name: 'Ma Peugeot 208', brand: 'Peugeot', model: '208', year: 2019, mileage: 150200 },
-  { id: 'veh-2', name: 'La Renault Clio de maman', brand: 'Renault', model: 'Clio IV', year: 2017, mileage: 85400 },
+  { id: 'veh-1', name: 'Ma Peugeot 208', brand: 'Peugeot', model: '208', year: 2019, mileage: 150200, licensePlate: 'AB-123-CD' },
+  { id: 'veh-2', name: 'La Renault Clio de maman', brand: 'Renault', model: 'Clio IV', year: 2017, mileage: 85400, licensePlate: 'EF-456-GH' },
 ];
 
 const mockEntries: MaintenanceEntry[] = [
@@ -34,8 +34,12 @@ export default function Dashboard({ user }: { user: FirebaseUser }) {
   const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(mockVehicles.length > 0 ? mockVehicles[0].id : null);
   
   const [loading, setLoading] = useState(false);
+  
   const [isMaintenanceFormOpen, setIsMaintenanceFormOpen] = useState(false);
+  const [editingMaintenanceEntry, setEditingMaintenanceEntry] = useState<MaintenanceEntry | undefined>(undefined);
+
   const [isVehicleFormOpen, setIsVehicleFormOpen] = useState(false);
+  const [editingVehicle, setEditingVehicle] = useState<Vehicle | undefined>(undefined);
 
   const selectedVehicle = useMemo(() => vehicles.find(v => v.id === selectedVehicleId), [vehicles, selectedVehicleId]);
 
@@ -54,13 +58,62 @@ export default function Dashboard({ user }: { user: FirebaseUser }) {
     return { totalCost, lastMileage };
   }, [filteredEntries, selectedVehicle]);
   
-  const handleAddVehicle = (newVehicle: Omit<Vehicle, 'id'>) => {
-    const newVehicles = [...vehicles, { ...newVehicle, id: `veh-${Date.now()}` }];
-    setVehicles(newVehicles);
-    if (!selectedVehicleId) {
-      setSelectedVehicleId(newVehicles[0].id);
+  const handleOpenAddVehicleForm = () => {
+    setEditingVehicle(undefined);
+    setIsVehicleFormOpen(true);
+  }
+
+  const handleOpenEditVehicleForm = (vehicle: Vehicle) => {
+    setEditingVehicle(vehicle);
+    setIsVehicleFormOpen(true);
+  }
+
+  const handleVehicleSubmit = (vehicleData: Omit<Vehicle, 'id'> | Vehicle) => {
+    if ('id' in vehicleData) {
+      // Editing existing vehicle
+      setVehicles(vehicles.map(v => v.id === vehicleData.id ? vehicleData : v));
+    } else {
+      // Adding new vehicle
+      const newVehicle = { ...vehicleData, id: `veh-${Date.now()}` };
+      setVehicles([...vehicles, newVehicle]);
+      // If it's the first vehicle, select it automatically
+      if (vehicles.length === 0) {
+        setSelectedVehicleId(newVehicle.id);
+      }
     }
   }
+
+  const handleOpenAddMaintenanceForm = () => {
+    setEditingMaintenanceEntry(undefined);
+    setIsMaintenanceFormOpen(true);
+  };
+
+  const handleOpenEditMaintenanceForm = (entry: MaintenanceEntry) => {
+    setEditingMaintenanceEntry(entry);
+    setIsMaintenanceFormOpen(true);
+  };
+
+  const handleMaintenanceSubmit = (entryData: any) => {
+     if (editingMaintenanceEntry) {
+      // Update
+      const updatedEntries = maintenanceEntries.map(e => e.id === editingMaintenanceEntry.id ? { ...e, ...entryData, date: Timestamp.fromDate(entryData.date) } : e);
+      setMaintenanceEntries(updatedEntries);
+    } else {
+      // Add
+      const newEntry: MaintenanceEntry = {
+        ...entryData,
+        id: `entry-${Date.now()}`,
+        vehicleId: selectedVehicleId!,
+        date: Timestamp.fromDate(entryData.date)
+      };
+      setMaintenanceEntries([...maintenanceEntries, newEntry]);
+    }
+  };
+
+  const handleMaintenanceDelete = (entryId: string) => {
+    setMaintenanceEntries(maintenanceEntries.filter(e => e.id !== entryId));
+  };
+
 
   return (
     <div className="min-h-screen bg-background">
@@ -70,13 +123,15 @@ export default function Dashboard({ user }: { user: FirebaseUser }) {
         <VehicleSelector 
           vehicles={vehicles}
           onVehicleSelect={setSelectedVehicleId}
-          onAddVehicle={() => setIsVehicleFormOpen(true)}
+          onAddVehicle={handleOpenAddVehicleForm}
+          onEditVehicle={handleOpenEditVehicleForm}
           selectedVehicleId={selectedVehicleId}
         />
         <AddVehicleForm 
           isOpen={isVehicleFormOpen}
           setIsOpen={setIsVehicleFormOpen}
-          onAddVehicle={handleAddVehicle}
+          onVehicleSubmit={handleVehicleSubmit}
+          vehicleToEdit={editingVehicle}
         />
 
         {selectedVehicle ? (
@@ -86,7 +141,7 @@ export default function Dashboard({ user }: { user: FirebaseUser }) {
             <div className="mt-8">
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-2xl font-bold font-headline">Carnet d'entretien</h2>
-                <Button onClick={() => setIsMaintenanceFormOpen(true)}>
+                <Button onClick={handleOpenAddMaintenanceForm}>
                   <PlusCircle className="mr-2 h-4 w-4" /> Ajouter une entrée
                 </Button>
                 <MaintenanceForm 
@@ -94,6 +149,8 @@ export default function Dashboard({ user }: { user: FirebaseUser }) {
                   vehicleId={selectedVehicle.id}
                   isOpen={isMaintenanceFormOpen} 
                   setIsOpen={setIsMaintenanceFormOpen} 
+                  onMaintenanceSubmit={handleMaintenanceSubmit}
+                  entryToEdit={editingMaintenanceEntry}
                 />
               </div>
               {loading ? (
@@ -103,7 +160,11 @@ export default function Dashboard({ user }: { user: FirebaseUser }) {
                     <Skeleton className="h-12 w-full" />
                  </div>
               ) : (
-                <MaintenanceLog entries={filteredEntries} />
+                <MaintenanceLog 
+                  entries={filteredEntries} 
+                  onEdit={handleOpenEditMaintenanceForm}
+                  onDelete={handleMaintenanceDelete}
+                />
               )}
             </div>
           </>
@@ -111,7 +172,7 @@ export default function Dashboard({ user }: { user: FirebaseUser }) {
            <div className="text-center py-16">
               <h2 className="text-2xl font-bold mb-2">Aucun véhicule trouvé</h2>
               <p className="text-muted-foreground mb-4">Commencez par ajouter votre premier véhicule.</p>
-              <Button onClick={() => setIsVehicleFormOpen(true)}>
+              <Button onClick={handleOpenAddVehicleForm}>
                 <PlusCircle className="mr-2 h-4 w-4" /> Ajouter un véhicule
               </Button>
             </div>

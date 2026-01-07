@@ -13,17 +13,18 @@ import {
 } from "@/components/ui/carousel"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "../ui/button";
-import { Car, PlusCircle } from "lucide-react";
+import { Car, PlusCircle, Pencil } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface VehicleSelectorProps {
   vehicles: Vehicle[];
   onVehicleSelect: (vehicleId: string | null) => void;
   onAddVehicle: () => void;
+  onEditVehicle: (vehicle: Vehicle) => void;
   selectedVehicleId: string | null;
 }
 
-export default function VehicleSelector({ vehicles, onVehicleSelect, onAddVehicle, selectedVehicleId }: VehicleSelectorProps) {
+export default function VehicleSelector({ vehicles, onVehicleSelect, onAddVehicle, onEditVehicle, selectedVehicleId }: VehicleSelectorProps) {
   const [api, setApi] = React.useState<CarouselApi>()
   const [current, setCurrent] = React.useState(0)
 
@@ -80,14 +81,27 @@ export default function VehicleSelector({ vehicles, onVehicleSelect, onAddVehicl
                 <Card 
                     onClick={() => handleCardClick(vehicle.id, index)}
                     className={cn(
-                        "transition-all cursor-pointer", 
+                        "transition-all cursor-pointer relative", 
                         selectedVehicleId === vehicle.id ? "border-primary shadow-lg" : "border-border hover:border-muted-foreground/50"
                     )}
                 >
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="absolute top-2 right-2 h-7 w-7 text-muted-foreground hover:text-foreground"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onEditVehicle(vehicle);
+                        }}
+                        aria-label="Modifier le véhicule"
+                    >
+                        <Pencil className="h-4 w-4" />
+                    </Button>
                     <CardContent className="flex flex-col items-center justify-center p-6 gap-2">
                         <Car className="w-8 h-8 text-muted-foreground" />
                         <span className="text-lg font-semibold">{vehicle.name}</span>
                         <p className="text-sm text-muted-foreground">{vehicle.brand} {vehicle.model} - {vehicle.year}</p>
+                        <p className="text-sm font-mono tracking-wider bg-secondary text-secondary-foreground rounded px-2 py-1">{vehicle.licensePlate}</p>
                     </CardContent>
                 </Card>
                 </div>

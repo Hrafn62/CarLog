@@ -10,6 +10,7 @@ export interface Vehicle {
   model: string;
   year: number;
   mileage: number;
+  licensePlate: string;
 }
 
 export interface MaintenanceEntry {

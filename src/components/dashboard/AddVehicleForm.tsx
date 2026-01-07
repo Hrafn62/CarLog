@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -33,6 +33,7 @@ const formSchema = z.object({
   model: z.string().min(2, "Le modèle doit comporter au moins 2 caractères."),
   year: z.coerce.number().min(1900, "L'année doit être valide.").max(new Date().getFullYear() + 1, "L'année ne peut pas être dans le futur."),
   mileage: z.coerce.number().min(0, "Le kilométrage doit être un nombre positif."),
+  licensePlate: z.string().min(1, "La plaque d'immatriculation est requise."),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -40,12 +41,14 @@ type FormData = z.infer<typeof formSchema>;
 interface AddVehicleFormProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
-  onAddVehicle: (vehicle: Omit<Vehicle, 'id'>) => void;
+  onVehicleSubmit: (vehicle: Omit<Vehicle, 'id'> | Vehicle) => void;
+  vehicleToEdit?: Vehicle;
 }
 
-export default function AddVehicleForm({ isOpen, setIsOpen, onAddVehicle }: AddVehicleFormProps) {
+export default function AddVehicleForm({ isOpen, setIsOpen, onVehicleSubmit, vehicleToEdit }: AddVehicleFormProps) {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const isEditing = !!vehicleToEdit;
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -55,22 +58,38 @@ export default function AddVehicleForm({ isOpen, setIsOpen, onAddVehicle }: AddV
       model: "",
       year: undefined,
       mileage: undefined,
+      licensePlate: "",
     },
   });
 
+  useEffect(() => {
+    if (isEditing) {
+      form.reset(vehicleToEdit);
+    } else {
+      form.reset({
+        name: "",
+        brand: "",
+        model: "",
+        year: undefined,
+        mileage: undefined,
+        licensePlate: "",
+      });
+    }
+  }, [isOpen, isEditing, vehicleToEdit, form]);
+
   const onSubmit = async (values: FormData) => {
     setIsSubmitting(true);
-    console.log("Simulating add vehicle with values:", values);
     
     // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise(resolve => setTimeout(resolve, 500));
 
-    onAddVehicle(values);
+    onVehicleSubmit(isEditing ? { ...vehicleToEdit, ...values } : values);
     
     toast({
-        title: "Véhicule ajouté !",
-        description: `${values.name} a été ajouté à votre garage.`,
+        title: isEditing ? "Véhicule mis à jour !" : "Véhicule ajouté !",
+        description: `${values.name} a été ${isEditing ? 'mis à jour' : 'ajouté'} dans votre garage.`,
     });
+    
     form.reset();
     setIsOpen(false);
     setIsSubmitting(false);
@@ -80,9 +99,9 @@ export default function AddVehicleForm({ isOpen, setIsOpen, onAddVehicle }: AddV
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Ajouter un nouveau véhicule</DialogTitle>
+          <DialogTitle>{isEditing ? "Modifier le véhicule" : "Ajouter un nouveau véhicule"}</DialogTitle>
           <DialogDescription>
-            Remplissez les informations de votre véhicule.
+            {isEditing ? "Mettez à jour les informations de votre véhicule." : "Remplissez les informations de votre véhicule."}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -95,6 +114,19 @@ export default function AddVehicleForm({ isOpen, setIsOpen, onAddVehicle }: AddV
                   <FormLabel>Nom du véhicule</FormLabel>
                   <FormControl>
                     <Input placeholder="ex: Ma voiture principale" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="licensePlate"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Plaque d'immatriculation</FormLabel>
+                  <FormControl>
+                    <Input placeholder="ex: AB-123-CD" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -160,7 +192,7 @@ export default function AddVehicleForm({ isOpen, setIsOpen, onAddVehicle }: AddV
             <DialogFooter className="pt-4">
               <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Ajouter le véhicule
+                {isEditing ? "Enregistrer les modifications" : "Ajouter le véhicule"}
               </Button>
             </DialogFooter>
           </form>
