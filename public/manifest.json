@@ -1,0 +1,33 @@
+{
+  "name": "CarLog PWA",
+  "short_name": "CarLog",
+  "description": "A minimalist Progressive Web App to manage your vehicle maintenance.",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#F0F8FF",
+  "theme_color": "#00BFFF",
+  "icons": [
+    {
+      "src": "icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "maskable_icon_x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "maskable_icon_x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
